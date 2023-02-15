@@ -1,11 +1,40 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { fetchProductList } from "../action/product.action";
 
-const productInitialState = {};
+const productInitialState = {
+  product: [],
+  fetchingProductList: true,
+  pagination: {
+    page: 1,
+    limit: 20,
+    total: 0,
+  },
+};
 
 const productSlice = createSlice({
   name: "product",
   initialState: productInitialState,
-  extraReducers: (builder) => {},
+  reducers: {
+    changePagination: (state, action) => {
+      state.pagination.page = action.payload.page;
+      state.pagination.limit = action.payload.limit;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchProductList.pending, (state, action) => {
+      state.fetchingProductList = true;
+    });
+    builder.addCase(fetchProductList.fulfilled, (state, action) => {
+      state.fetchingProductList = false;
+      state.product = action.payload.product;
+      state.pagination.total = action.payload.total;
+    });
+    builder.addCase(fetchProductList.rejected, (state, action) => {
+      state.fetchingProductList = false;
+    });
+  },
 });
 
 export const productReducer = productSlice.reducer;
+
+export const { changePagination } = productSlice.actions;
